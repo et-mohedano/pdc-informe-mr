@@ -1,0 +1,1673 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulo de Integración · Informe 2026</title>
+  <style>
+    :root{
+      --bg:#f6f7f9;
+      --surface:#ffffff;
+      --surface-2:#f1f3f6;
+      --line:#e5e7eb;
+      --text:#111827;
+      --muted:#6b7280;
+      --primary:#1f4e79;
+      --primary-soft:#eaf2fb;
+      --success:#0f766e;
+      --success-soft:#e8f7f5;
+      --warning:#b45309;
+      --warning-soft:#fff7ed;
+      --danger:#b42318;
+      --danger-soft:#fef2f2;
+      --shadow:0 10px 35px rgba(17,24,39,.06);
+      --radius-xl:24px;
+      --radius-lg:18px;
+      --radius-md:14px;
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(31,78,121,.06), transparent 28%),
+        linear-gradient(180deg, #fafbfc 0%, #f3f5f8 100%);
+    }
+
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns: 290px 1fr;
+    }
+
+    .sidebar{
+      position:sticky;
+      top:0;
+      align-self:start;
+      height:100vh;
+      padding:24px 18px;
+      border-right:1px solid rgba(229,231,235,.95);
+      background:rgba(255,255,255,.82);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand{
+      background:linear-gradient(145deg, #163a5c, #1f4e79 70%, #2d6ba0);
+      color:#fff;
+      border-radius:26px;
+      padding:22px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .brand .eyebrow{
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      opacity:.8;
+      margin-bottom:10px;
+    }
+
+    .brand h1{
+      margin:0 0 10px;
+      font-size:26px;
+      line-height:1.08;
+    }
+
+    .brand p{
+      margin:0;
+      font-size:13px;
+      line-height:1.5;
+      color:rgba(255,255,255,.88);
+    }
+
+    .side-card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+
+    .side-card h3{
+      margin:0 0 10px;
+      font-size:14px;
+    }
+
+    .metrics{
+      display:grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .metric{
+      padding:12px;
+      border-radius:16px;
+      background:var(--surface-2);
+      border:1px solid rgba(229,231,235,.9);
+    }
+
+    .metric strong{
+      display:block;
+      font-size:22px;
+      color:var(--primary);
+      margin-bottom:4px;
+    }
+
+    .metric span{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.3;
+    }
+
+    .nav{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .nav-btn{
+      width:100%;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--text);
+      text-align:left;
+      border-radius:16px;
+      padding:13px 14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .nav-btn:hover{
+      background:#f8fafc;
+      border-color:#eef2f7;
+    }
+
+    .nav-btn.active{
+      background:var(--primary-soft);
+      color:var(--primary);
+      border-color:#d7e5f5;
+    }
+
+    .content{
+      padding:26px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    .topbar h2{
+      margin:0 0 6px;
+      font-size:30px;
+      line-height:1.05;
+    }
+
+    .topbar p{
+      margin:0;
+      color:var(--muted);
+      max-width:860px;
+      line-height:1.55;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:flex-end;
+    }
+
+    button, .btn{
+      appearance:none;
+      border:0;
+      font:inherit;
+      cursor:pointer;
+      border-radius:14px;
+      padding:11px 15px;
+      font-weight:700;
+      transition:.18s ease;
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .btn-primary:hover{ transform:translateY(-1px); opacity:.96; }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+
+    .btn-secondary:hover{ background:#fafafa; }
+
+    .btn-soft{
+      background:var(--surface-2);
+      color:var(--text);
+      border:1px solid rgba(229,231,235,.9);
+    }
+
+    .btn-danger{
+      background:var(--danger-soft);
+      color:var(--danger);
+      border:1px solid #f7d9d9;
+    }
+
+    .grid{
+      display:grid;
+      gap:18px;
+    }
+
+    .grid-2{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius-xl);
+      padding:22px;
+      box-shadow:var(--shadow);
+    }
+
+    .card h3{
+      margin:0 0 6px;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .card .sub{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .field-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:14px;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+    }
+
+    .field.full{ grid-column: 1 / -1; }
+
+    label{
+      font-size:13px;
+      font-weight:700;
+      color:#374151;
+    }
+
+    input, textarea, select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:13px 14px;
+      font:inherit;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    textarea{ min-height:120px; resize:vertical; }
+
+    input:focus, textarea:focus, select:focus{
+      border-color:#aac4e3;
+      box-shadow:0 0 0 4px rgba(31,78,121,.08);
+    }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .section-title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .word-counter{
+      font-size:12px;
+      font-weight:700;
+      padding:8px 10px;
+      border-radius:999px;
+      background:var(--surface-2);
+      color:var(--muted);
+      white-space:nowrap;
+      border:1px solid rgba(229,231,235,.9);
+    }
+
+    .word-counter.over{
+      background:var(--warning-soft);
+      color:var(--warning);
+      border-color:#f5d6aa;
+    }
+
+    .action-list{
+      display:grid;
+      gap:16px;
+    }
+
+    .action-card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fcfcfd;
+      overflow:hidden;
+    }
+
+    .action-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      background:#fafbfc;
+      border-bottom:1px solid var(--line);
+    }
+
+    .action-head strong{ font-size:15px; }
+    .action-head span{ color:var(--muted); font-size:13px; }
+
+    .action-body{ padding:18px; }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid transparent;
+    }
+
+    .chip-neutral{
+      background:var(--surface-2);
+      color:var(--muted);
+      border-color:#e5e7eb;
+    }
+
+    .chip-success{
+      background:var(--success-soft);
+      color:var(--success);
+      border-color:#ccefeb;
+    }
+
+    .chip-warning{
+      background:var(--warning-soft);
+      color:var(--warning);
+      border-color:#f6dfbc;
+    }
+
+    .chip-danger{
+      background:var(--danger-soft);
+      color:var(--danger);
+      border-color:#f1cccc;
+    }
+
+    .review-layout{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:18px;
+    }
+
+    .preview-box{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+      background:#fcfcfd;
+    }
+
+    .preview-box h4{
+      margin:0 0 12px;
+      font-size:15px;
+    }
+
+    .preview-box p{
+      margin:0;
+      color:#374151;
+      line-height:1.65;
+    }
+
+    .list{
+      display:grid;
+      gap:12px;
+    }
+
+    .comment-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      background:#fff;
+    }
+
+    .comment-head{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .comment-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+
+    .comment-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .empty{
+      text-align:center;
+      padding:34px 18px;
+      color:var(--muted);
+      border:1px dashed #d7dde7;
+      border-radius:18px;
+      background:#fafbfc;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+    }
+
+    .kpi-row{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .kpi{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .kpi strong{
+      display:block;
+      font-size:28px;
+      color:var(--primary);
+      margin-bottom:6px;
+    }
+
+    .kpi span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      background:#fff;
+    }
+
+    th, td{
+      padding:13px 14px;
+      border-bottom:1px solid #eef1f4;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      background:#fafbfc;
+      color:#374151;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+
+    .accordion{
+      display:grid;
+      gap:12px;
+    }
+
+    details{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      overflow:hidden;
+    }
+
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:16px 18px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    summary::-webkit-details-marker{ display:none; }
+
+    .details-body{
+      border-top:1px solid var(--line);
+      padding:18px;
+      color:#374151;
+      line-height:1.65;
+    }
+
+    .status-banner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px 20px;
+      background:#fff;
+      margin-bottom:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .status-banner strong{
+      display:block;
+      font-size:16px;
+      margin-bottom:4px;
+    }
+
+    .status-banner p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .page{ display:none; }
+    .page.active{ display:block; }
+
+    @media (max-width: 1100px){
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{
+        position:relative;
+        height:auto;
+        border-right:0;
+        border-bottom:1px solid var(--line);
+      }
+      .review-layout, .summary-grid{ grid-template-columns: 1fr; }
+      .kpi-row, .grid-3{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (max-width: 760px){
+      .content{ padding:18px; }
+      .topbar{ flex-direction:column; }
+      .field-grid, .grid-2, .grid-3, .kpi-row{ grid-template-columns: 1fr; }
+      .brand h1{ font-size:24px; }
+      .topbar h2{ font-size:26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="eyebrow">Segundo Informe de Gobierno</div>
+        <h1>Captura · Revisión · Concentrado</h1>
+        <p>Prototipo de módulo para integrar la información del Informe 2026 de manera ordenada, editable y revisable.</p>
+      </div>
+
+      <div class="side-card">
+        <h3>Estado general</h3>
+        <div class="metrics">
+          <div class="metric">
+            <strong id="metricActions">0</strong>
+            <span>acciones registradas</span>
+          </div>
+          <div class="metric">
+            <strong id="metricComments">0</strong>
+            <span>comentarios activos</span>
+          </div>
+          <div class="metric">
+            <strong id="metricResolved">0%</strong>
+            <span>avance de captura</span>
+          </div>
+          <div class="metric">
+            <strong id="metricStatus">Básico</strong>
+            <span>nivel de integración</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Vistas del módulo</h3>
+        <div class="nav">
+          <button class="nav-btn active" data-page="captura">1. Captura del área</button>
+          <button class="nav-btn" data-page="revision">2. Revisión y comentarios</button>
+          <button class="nav-btn" data-page="concentrado">3. Concentrado del informe</button>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Herramientas</h3>
+        <div class="nav">
+          <button class="nav-btn" id="loadDemoBtn">Cargar ejemplo</button>
+          <button class="nav-btn" id="saveBtn">Guardar en navegador</button>
+          <button class="nav-btn" id="exportBtn">Exportar JSON</button>
+          <button class="nav-btn" id="resetBtn">Limpiar captura</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="page active" id="page-captura">
+        <div class="topbar">
+          <div>
+            <h2>Captura del área</h2>
+            <p>Esta vista está pensada para la secretaría o dirección que llena la información. Se captura el resumen ejecutivo, la numeralia, el desarrollo de cada acción y la evidencia base.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="captureSaveTop">Guardar</button>
+            <button class="btn btn-primary" data-page-target="revision">Ir a revisión</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="section-title">
+              <div>
+                <h3>Datos generales</h3>
+                <p>Identificación de la secretaría, responsable y periodo reportado.</p>
+              </div>
+              <span class="chip chip-neutral">Captura base</span>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="secretaria">Secretaría</label>
+                <input id="secretaria" placeholder="Ej. Secretaría de Obras Públicas" />
+              </div>
+              <div class="field">
+                <label for="area">Área / Dirección</label>
+                <input id="area" placeholder="Ej. Dirección de Infraestructura" />
+              </div>
+              <div class="field">
+                <label for="responsable">Responsable de captura</label>
+                <input id="responsable" placeholder="Nombre del enlace de informe" />
+              </div>
+              <div class="field">
+                <label for="cargo">Cargo</label>
+                <input id="cargo" placeholder="Ej. Director(a) de área" />
+              </div>
+              <div class="field">
+                <label for="periodo">Periodo de reporte</label>
+                <input id="periodo" value="Septiembre 2025 – Agosto 2026" />
+              </div>
+              <div class="field">
+                <label for="fechaActualizacion">Última actualización</label>
+                <input id="fechaActualizacion" type="date" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">
+              <div>
+                <h3>Resumen ejecutivo</h3>
+                <p>Máximo 150 palabras con el logro más importante del área.</p>
+              </div>
+              <span class="word-counter" id="wordCounter">0 / 150 palabras</span>
+            </div>
+            <div class="field">
+              <label for="resumen">Mensaje principal para ciudadanía</label>
+              <textarea id="resumen" placeholder="Escriba aquí un resumen claro, breve y entendible para el informe."></textarea>
+              <div class="hint">Sugerencia: redactar en lenguaje ciudadano, con un logro verificable y su impacto principal.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">
+              <div>
+                <h3>Datos duros y numeralia</h3>
+                <p>Registre de mayor a menor importancia las acciones o programas relevantes del periodo.</p>
+              </div>
+              <button class="btn btn-primary" id="addActionBtn">Agregar acción</button>
+            </div>
+            <div id="actionsContainer" class="action-list"></div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Testimonial</h3>
+                  <p>Nombre del ciudadano y comentario breve de cambio o beneficio.</p>
+                </div>
+                <span class="chip chip-neutral">Opcional</span>
+              </div>
+              <div class="field-grid">
+                <div class="field full">
+                  <label for="testimonioNombre">Nombre del beneficiario</label>
+                  <input id="testimonioNombre" placeholder="Nombre del ciudadano o beneficiario" />
+                </div>
+                <div class="field full">
+                  <label for="testimonioTexto">Comentario</label>
+                  <textarea id="testimonioTexto" placeholder="Breve testimonio o caso de éxito"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Evidencia</h3>
+                  <p>Registro simple de materiales que acompañarán la integración final.</p>
+                </div>
+                <span class="chip chip-neutral">Soporte visual</span>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="evidenciaFotos">Cantidad de fotos</label>
+                  <input id="evidenciaFotos" type="number" min="0" placeholder="0" />
+                </div>
+                <div class="field">
+                  <label for="evidenciaVideos">Cantidad de videos</label>
+                  <input id="evidenciaVideos" type="number" min="0" placeholder="0" />
+                </div>
+                <div class="field full">
+                  <label for="evidenciaCarpeta">Ruta, carpeta o referencia</label>
+                  <input id="evidenciaCarpeta" placeholder="Ej. Drive / Carpeta / Folio interno" />
+                </div>
+                <div class="field full">
+                  <label for="evidenciaNotas">Notas de evidencia</label>
+                  <textarea id="evidenciaNotas" placeholder="Ej. antes/después, clips cortos, validación del material"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-revision">
+        <div class="topbar">
+          <div>
+            <h2>Revisión y comentarios</h2>
+            <p>Esta vista representa a quien revisa la información. Puede dejar observaciones puntuales, y luego dar por atendidas o retirar las que ya quedaron resueltas.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" data-page-target="captura">Volver a captura</button>
+            <button class="btn btn-primary" data-page-target="concentrado">Ver concentrado</button>
+          </div>
+        </div>
+
+        <div class="review-layout">
+          <div class="grid">
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Vista rápida de lo capturado</h3>
+                  <p>Resumen de la información registrada por el área para revisar consistencia y claridad.</p>
+                </div>
+                <span class="chip chip-neutral" id="reviewSecretariaChip">Sin área</span>
+              </div>
+              <div class="list">
+                <div class="preview-box">
+                  <h4>Resumen ejecutivo</h4>
+                  <p id="previewResumen">Aún no se ha capturado información.</p>
+                </div>
+                <div class="preview-box">
+                  <h4>Acciones registradas</h4>
+                  <div id="previewActions" class="list"></div>
+                </div>
+                <div class="preview-box">
+                  <h4>Testimonial y evidencia</h4>
+                  <p id="previewEvidence">Sin información registrada.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Agregar comentario</h3>
+                  <p>Observaciones de revisión para que el área complete, ajuste o corrija información.</p>
+                </div>
+                <span class="chip chip-warning">Flujo de revisión</span>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="commentSection">Sección</label>
+                  <select id="commentSection">
+                    <option value="Datos generales">Datos generales</option>
+                    <option value="Resumen ejecutivo">Resumen ejecutivo</option>
+                    <option value="Acciones relevantes">Acciones relevantes</option>
+                    <option value="Desarrollo de acciones">Desarrollo de acciones</option>
+                    <option value="Testimonial y evidencia">Testimonial y evidencia</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="commentAuthor">Revisor</label>
+                  <input id="commentAuthor" placeholder="Nombre del revisor" />
+                </div>
+                <div class="field full">
+                  <label for="commentText">Comentario</label>
+                  <textarea id="commentText" placeholder="Ej. Precisar colonia, corregir meta, reforzar impacto o anexar evidencia."></textarea>
+                </div>
+              </div>
+              <div class="actions" style="margin-top:14px; justify-content:flex-start;">
+                <button class="btn btn-primary" id="addCommentBtn">Guardar comentario</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Observaciones activas</h3>
+                  <p>Las observaciones pueden permanecer abiertas, marcarse como atendidas o retirarse cuando ya no apliquen.</p>
+                </div>
+                <span class="chip chip-danger" id="activeCommentChip">0 activas</span>
+              </div>
+              <div id="commentsContainer" class="list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-concentrado">
+        <div class="topbar">
+          <div>
+            <h2>Concentrado del informe</h2>
+            <p>Vista para integración: reúne la información principal, identifica pendientes y permite revisar si el área está lista para incorporarse al Informe 2026.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" data-page-target="revision">Ir a revisión</button>
+            <button class="btn btn-primary" id="downloadSummaryBtn">Exportar JSON</button>
+          </div>
+        </div>
+
+        <div class="status-banner">
+          <div>
+            <strong id="integrationStatusTitle">En construcción</strong>
+            <p id="integrationStatusText">Aún faltan elementos para considerar esta ficha lista para integración.</p>
+          </div>
+          <span class="chip chip-neutral" id="integrationChip">Borrador</span>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <strong id="sumActions">0</strong>
+            <span>acciones prioritarias registradas</span>
+          </div>
+          <div class="kpi">
+            <strong id="sumBeneficiarios">0</strong>
+            <span>beneficiarios directos acumulados</span>
+          </div>
+          <div class="kpi">
+            <strong id="sumInversion">—</strong>
+            <span>inversión total capturada</span>
+          </div>
+          <div class="kpi">
+            <strong id="sumComments">0</strong>
+            <span>comentarios aún activos</span>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="grid">
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Ficha general</h3>
+                  <p>Datos de identificación del área y mensaje principal de reporte.</p>
+                </div>
+                <span class="chip chip-neutral" id="summarySecretariaChip">Sin capturar</span>
+              </div>
+              <div class="grid grid-2">
+                <div class="preview-box">
+                  <h4>Área responsable</h4>
+                  <p id="summaryGeneral">Sin información general capturada.</p>
+                </div>
+                <div class="preview-box">
+                  <h4>Resumen ejecutivo</h4>
+                  <p id="summaryResumen">Sin resumen ejecutivo.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Numeralia consolidada</h3>
+                  <p>Tabla con las acciones relevantes para armado del cuerpo del informe.</p>
+                </div>
+                <span class="chip chip-neutral">Base técnica</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Acción / Programa</th>
+                      <th>Meta anual</th>
+                      <th>Logro</th>
+                      <th>Beneficiarios</th>
+                      <th>Inversión</th>
+                    </tr>
+                  </thead>
+                  <tbody id="summaryTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Desarrollo de acciones</h3>
+                  <p>Detalle breve por acción para facilitar redacción e integración editorial.</p>
+                </div>
+                <span class="chip chip-neutral">Narrativa base</span>
+              </div>
+              <div id="summaryAccordion" class="accordion"></div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Testimonial y evidencia</h3>
+                  <p>Material de apoyo para enriquecer la versión final del informe.</p>
+                </div>
+                <span class="chip chip-neutral">Complementos</span>
+              </div>
+              <div class="list">
+                <div class="preview-box">
+                  <h4>Testimonial</h4>
+                  <p id="summaryTestimonial">Sin testimonial registrado.</p>
+                </div>
+                <div class="preview-box">
+                  <h4>Evidencia</h4>
+                  <p id="summaryEvidence">Sin evidencia registrada.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">
+                <div>
+                  <h3>Control de observaciones</h3>
+                  <p>Seguimiento rápido de comentarios que siguen activos o ya se atendieron.</p>
+                </div>
+                <span class="chip chip-warning" id="summaryCommentChip">Seguimiento</span>
+              </div>
+              <div id="summaryCommentsList" class="list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'informe2026_prototipo_v2';
+
+  const state = {
+    general: {
+      secretaria: '',
+      area: '',
+      responsable: '',
+      cargo: '',
+      periodo: 'Septiembre 2025 – Agosto 2026',
+      fechaActualizacion: ''
+    },
+    resumen: '',
+    acciones: [],
+    testimonial: {
+      nombre: '',
+      texto: ''
+    },
+    evidencia: {
+      fotos: '',
+      videos: '',
+      carpeta: '',
+      notas: ''
+    },
+    comentarios: []
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const moneyFormat = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 2 });
+
+  function parseCurrency(value){
+    if(!value) return 0;
+    const cleaned = String(value).replace(/[^0-9.\-]/g, '');
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : 0;
+  }
+
+  function parseIntSafe(value){
+    const cleaned = String(value || '').replace(/[^0-9\-]/g, '');
+    const num = parseInt(cleaned, 10);
+    return Number.isFinite(num) ? num : 0;
+  }
+
+  function saveToStorage(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderAll();
+  }
+
+  function loadFromStorage(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    try{
+      const parsed = JSON.parse(raw);
+      Object.assign(state.general, parsed.general || {});
+      state.resumen = parsed.resumen || '';
+      state.acciones = Array.isArray(parsed.acciones) ? parsed.acciones : [];
+      Object.assign(state.testimonial, parsed.testimonial || {});
+      Object.assign(state.evidencia, parsed.evidencia || {});
+      state.comentarios = Array.isArray(parsed.comentarios) ? parsed.comentarios : [];
+    }catch(err){
+      console.warn('No se pudo leer el almacenamiento local', err);
+    }
+  }
+
+  function resetState(){
+    state.general = {
+      secretaria: '',
+      area: '',
+      responsable: '',
+      cargo: '',
+      periodo: 'Septiembre 2025 – Agosto 2026',
+      fechaActualizacion: ''
+    };
+    state.resumen = '';
+    state.acciones = [];
+    state.testimonial = { nombre:'', texto:'' };
+    state.evidencia = { fotos:'', videos:'', carpeta:'', notas:'' };
+    state.comentarios = [];
+    localStorage.removeItem(STORAGE_KEY);
+    syncInputs();
+    renderAll();
+  }
+
+  function loadDemo(){
+    state.general = {
+      secretaria: 'Secretaría de Obras Públicas',
+      area: 'Dirección de Infraestructura Urbana',
+      responsable: 'María Fernanda López',
+      cargo: 'Enlace de informe',
+      periodo: 'Septiembre 2025 – Agosto 2026',
+      fechaActualizacion: '2026-04-13'
+    };
+    state.resumen = 'Durante el periodo informado, el área fortaleció la infraestructura urbana con intervenciones prioritarias en vialidades, alumbrado y espacios públicos. Se superaron metas programadas en rehabilitación de calles, se amplió la cobertura de iluminación y se atendieron zonas con alta demanda ciudadana, lo que mejoró la movilidad, la seguridad y la calidad de vida en colonias estratégicas del municipio.';
+    state.acciones = [
+      {
+        id: crypto.randomUUID(),
+        titulo: 'Rehabilitación de vialidades en zonas prioritarias',
+        meta: '5,000 m²',
+        logro: '5,420 m²',
+        beneficiarios: '12,000',
+        inversion: '1500000',
+        descripcion: 'Se realizaron trabajos de bacheo, carpeta asfáltica y renivelación en tramos con deterioro crítico.',
+        donde: 'La Providencia, Campestre Villas del Álamo y PRI Chacón',
+        importancia: 'Mejoró la movilidad diaria y redujo riesgos para vehículos y peatones.'
+      },
+      {
+        id: crypto.randomUUID(),
+        titulo: 'Modernización de alumbrado público',
+        meta: '1,200 luminarias',
+        logro: '1,350 luminarias',
+        beneficiarios: '18,500',
+        inversion: '2280000',
+        descripcion: 'Se sustituyeron luminarias obsoletas por tecnología LED y se corrigieron puntos sin cobertura.',
+        donde: 'Fraccionamientos del sur y corredores con reportes reiterados',
+        importancia: 'Incrementó la percepción de seguridad y mejoró la visibilidad nocturna.'
+      }
+    ];
+    state.testimonial = {
+      nombre: 'Rosa Hernández',
+      texto: 'Antes la calle se encharcaba y estaba muy dañada; ahora el acceso a mi colonia es mucho más seguro y rápido.'
+    };
+    state.evidencia = {
+      fotos: '24',
+      videos: '3',
+      carpeta: 'Drive / Obras_Publicas / Informe_2026 / Evidencia',
+      notas: 'Incluye comparativos antes/después y clips cortos de entrega de obra.'
+    };
+    state.comentarios = [
+      {
+        id: crypto.randomUUID(),
+        section: 'Resumen ejecutivo',
+        author: 'Coordinación de Informe',
+        text: 'Ajustar la redacción para enfatizar el principal resultado con una cifra concreta.',
+        response: '',
+        status: 'abierto',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        section: 'Testimonial y evidencia',
+        author: 'Coordinación de Informe',
+        text: 'Precisar si la carpeta contiene evidencia georreferenciada o únicamente material fotográfico.',
+        response: 'Se agregará una subcarpeta con ubicación y fecha de cada evidencia.',
+        status: 'atendido',
+        createdAt: new Date().toISOString()
+      }
+    ];
+    syncInputs();
+    renderAll();
+    saveToStorage();
+  }
+
+  function syncInputs(){
+    $('secretaria').value = state.general.secretaria || '';
+    $('area').value = state.general.area || '';
+    $('responsable').value = state.general.responsable || '';
+    $('cargo').value = state.general.cargo || '';
+    $('periodo').value = state.general.periodo || '';
+    $('fechaActualizacion').value = state.general.fechaActualizacion || '';
+    $('resumen').value = state.resumen || '';
+    $('testimonioNombre').value = state.testimonial.nombre || '';
+    $('testimonioTexto').value = state.testimonial.texto || '';
+    $('evidenciaFotos').value = state.evidencia.fotos || '';
+    $('evidenciaVideos').value = state.evidencia.videos || '';
+    $('evidenciaCarpeta').value = state.evidencia.carpeta || '';
+    $('evidenciaNotas').value = state.evidencia.notas || '';
+    renderActionsEditor();
+    updateWordCounter();
+  }
+
+  function currentCompletion(){
+    const checklist = [
+      !!state.general.secretaria,
+      !!state.general.area,
+      !!state.general.responsable,
+      !!state.resumen.trim(),
+      state.acciones.length > 0,
+      state.acciones.some(a => (a.titulo || '').trim()),
+      !!state.evidencia.carpeta || !!state.evidencia.fotos || !!state.evidencia.videos
+    ];
+    const done = checklist.filter(Boolean).length;
+    return Math.round((done / checklist.length) * 100);
+  }
+
+  function integrationStatus(){
+    const completion = currentCompletion();
+    const openComments = state.comentarios.filter(c => c.status === 'abierto').length;
+    if(completion >= 85 && openComments === 0 && state.acciones.length >= 1){
+      return {
+        title: 'Lista para integración',
+        text: 'La ficha cuenta con información suficiente y no tiene observaciones abiertas.',
+        chip: 'Lista',
+        chipClass: 'chip-success',
+        sideLabel: 'Lista'
+      };
+    }
+    if(completion >= 55){
+      return {
+        title: 'En revisión',
+        text: 'La información ya tiene estructura, pero todavía requiere ajustes o validaciones antes de integrarse.',
+        chip: 'En revisión',
+        chipClass: 'chip-warning',
+        sideLabel: 'Media'
+      };
+    }
+    return {
+      title: 'En construcción',
+      text: 'Aún faltan elementos clave para consolidar la ficha de informe.',
+      chip: 'Borrador',
+      chipClass: 'chip-neutral',
+      sideLabel: 'Básico'
+    };
+  }
+
+  function updateWordCounter(){
+    const words = (state.resumen.trim().match(/\S+/g) || []).length;
+    const el = $('wordCounter');
+    el.textContent = `${words} / 150 palabras`;
+    el.classList.toggle('over', words > 150);
+  }
+
+  function renderActionsEditor(){
+    const container = $('actionsContainer');
+    container.innerHTML = '';
+
+    if(state.acciones.length === 0){
+      container.innerHTML = '<div class="empty">Aún no hay acciones registradas. Agrega la primera acción relevante del área.</div>';
+      return;
+    }
+
+    state.acciones.forEach((accion, index) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'action-card';
+      wrap.innerHTML = `
+        <div class="action-head">
+          <div>
+            <strong>${accion.titulo?.trim() ? accion.titulo : `Acción ${index + 1}`}</strong>
+            <span>Prioridad ${index + 1}</span>
+          </div>
+          <button class="btn btn-danger" data-remove-action="${accion.id}">Eliminar</button>
+        </div>
+        <div class="action-body">
+          <div class="field-grid">
+            <div class="field full">
+              <label>Acción / Programa</label>
+              <input data-action-field="titulo" data-action-id="${accion.id}" value="${escapeHtml(accion.titulo || '')}" placeholder="Nombre de la acción o programa" />
+            </div>
+            <div class="field">
+              <label>Meta anual</label>
+              <input data-action-field="meta" data-action-id="${accion.id}" value="${escapeHtml(accion.meta || '')}" placeholder="Ej. 5,000 m²" />
+            </div>
+            <div class="field">
+              <label>Logro alcanzado</label>
+              <input data-action-field="logro" data-action-id="${accion.id}" value="${escapeHtml(accion.logro || '')}" placeholder="Ej. 5,200 m²" />
+            </div>
+            <div class="field">
+              <label>Beneficiarios directos</label>
+              <input data-action-field="beneficiarios" data-action-id="${accion.id}" value="${escapeHtml(accion.beneficiarios || '')}" placeholder="Ej. 12,000" />
+            </div>
+            <div class="field">
+              <label>Inversión</label>
+              <input data-action-field="inversion" data-action-id="${accion.id}" value="${escapeHtml(accion.inversion || '')}" placeholder="Ej. 1500000" />
+            </div>
+            <div class="field full">
+              <label>¿Qué se hizo?</label>
+              <textarea data-action-field="descripcion" data-action-id="${accion.id}" placeholder="Descripción técnica clara">${escapeHtml(accion.descripcion || '')}</textarea>
+            </div>
+            <div class="field full">
+              <label>¿Dónde se hizo?</label>
+              <textarea data-action-field="donde" data-action-id="${accion.id}" placeholder="Colonias, fraccionamientos o comunidades">${escapeHtml(accion.donde || '')}</textarea>
+            </div>
+            <div class="field full">
+              <label>¿Por qué es importante?</label>
+              <textarea data-action-field="importancia" data-action-id="${accion.id}" placeholder="Problema social o de infraestructura que resolvió">${escapeHtml(accion.importancia || '')}</textarea>
+            </div>
+          </div>
+        </div>
+      `;
+      container.appendChild(wrap);
+    });
+
+    container.querySelectorAll('[data-remove-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-remove-action');
+        state.acciones = state.acciones.filter(a => a.id !== id);
+        saveToStorage();
+      });
+    });
+
+    container.querySelectorAll('[data-action-field]').forEach(input => {
+      input.addEventListener('input', () => {
+        const id = input.getAttribute('data-action-id');
+        const field = input.getAttribute('data-action-field');
+        const item = state.acciones.find(a => a.id === id);
+        if(item){
+          item[field] = input.value;
+          renderAll(false);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+      });
+    });
+  }
+
+  function renderReviewPreview(){
+    $('reviewSecretariaChip').textContent = state.general.secretaria || 'Sin área';
+    $('previewResumen').textContent = state.resumen || 'Aún no se ha capturado información.';
+    const previewActions = $('previewActions');
+    previewActions.innerHTML = '';
+
+    if(state.acciones.length === 0){
+      previewActions.innerHTML = '<div class="empty">No hay acciones registradas.</div>';
+    } else {
+      state.acciones.forEach((accion, idx) => {
+        const div = document.createElement('div');
+        div.className = 'preview-box';
+        div.innerHTML = `
+          <h4>${idx + 1}. ${escapeHtml(accion.titulo || 'Acción sin nombre')}</h4>
+          <p><strong>Meta:</strong> ${escapeHtml(accion.meta || '—')} · <strong>Logro:</strong> ${escapeHtml(accion.logro || '—')} · <strong>Beneficiarios:</strong> ${escapeHtml(accion.beneficiarios || '—')}</p>
+          <p style="margin-top:10px;"><strong>Dónde:</strong> ${escapeHtml(accion.donde || 'Sin especificar')}</p>
+        `;
+        previewActions.appendChild(div);
+      });
+    }
+
+    const ev = [];
+    if(state.testimonial.nombre || state.testimonial.texto){
+      ev.push(`Testimonial: ${state.testimonial.nombre || 'Sin nombre'}${state.testimonial.texto ? ' — ' + state.testimonial.texto : ''}`);
+    }
+    if(state.evidencia.fotos || state.evidencia.videos || state.evidencia.carpeta){
+      ev.push(`Evidencia: ${state.evidencia.fotos || 0} fotos, ${state.evidencia.videos || 0} videos, referencia ${state.evidencia.carpeta || 'sin ruta'}`);
+    }
+    $('previewEvidence').textContent = ev.length ? ev.join(' · ') : 'Sin información registrada.';
+  }
+
+  function renderComments(){
+    const container = $('commentsContainer');
+    const activeCount = state.comentarios.filter(c => c.status === 'abierto').length;
+    $('activeCommentChip').textContent = `${activeCount} activas`;
+    container.innerHTML = '';
+
+    if(state.comentarios.length === 0){
+      container.innerHTML = '<div class="empty">No hay observaciones registradas.</div>';
+      return;
+    }
+
+    state.comentarios.slice().reverse().forEach(comment => {
+      const statusMap = {
+        abierto: ['Abierto', 'chip-danger'],
+        atendido: ['Atendido', 'chip-warning'],
+        retirado: ['Retirado', 'chip-success']
+      };
+      const [label, cls] = statusMap[comment.status] || ['Abierto', 'chip-danger'];
+
+      const card = document.createElement('div');
+      card.className = 'comment-card';
+      card.innerHTML = `
+        <div class="comment-head">
+          <div>
+            <strong>${escapeHtml(comment.section)}</strong>
+            <div class="muted" style="font-size:13px; margin-top:4px;">${escapeHtml(comment.author || 'Sin revisor')} · ${formatDate(comment.createdAt)}</div>
+          </div>
+          <div class="comment-meta">
+            <span class="chip ${cls}">${label}</span>
+          </div>
+        </div>
+        <div style="line-height:1.6; color:#374151;">${escapeHtml(comment.text)}</div>
+        <div class="field" style="margin-top:12px;">
+          <label>Respuesta del área</label>
+          <textarea data-comment-response="${comment.id}" placeholder="Respuesta o ajuste realizado">${escapeHtml(comment.response || '')}</textarea>
+        </div>
+        <div class="comment-actions">
+          <button class="btn btn-soft" data-comment-status="${comment.id}" data-status="abierto">Abrir</button>
+          <button class="btn btn-secondary" data-comment-status="${comment.id}" data-status="atendido">Marcar atendido</button>
+          <button class="btn btn-danger" data-comment-status="${comment.id}" data-status="retirado">Quitar comentario</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    container.querySelectorAll('[data-comment-response]').forEach(area => {
+      area.addEventListener('input', () => {
+        const id = area.getAttribute('data-comment-response');
+        const item = state.comentarios.find(c => c.id === id);
+        if(item){
+          item.response = area.value;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          renderSummaryComments();
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-comment-status]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-comment-status');
+        const status = btn.getAttribute('data-status');
+        const item = state.comentarios.find(c => c.id === id);
+        if(item){
+          item.status = status;
+          saveToStorage();
+        }
+      });
+    });
+  }
+
+  function renderSummary(){
+    const status = integrationStatus();
+    $('integrationStatusTitle').textContent = status.title;
+    $('integrationStatusText').textContent = status.text;
+    $('integrationChip').textContent = status.chip;
+    $('integrationChip').className = `chip ${status.chipClass}`;
+    $('summarySecretariaChip').textContent = state.general.secretaria || 'Sin capturar';
+
+    const generalTextParts = [
+      state.general.secretaria || 'Secretaría sin capturar',
+      state.general.area || 'Área no especificada',
+      state.general.responsable ? `Responsable: ${state.general.responsable}` : '',
+      state.general.cargo ? `Cargo: ${state.general.cargo}` : '',
+      state.general.periodo ? `Periodo: ${state.general.periodo}` : ''
+    ].filter(Boolean);
+    $('summaryGeneral').textContent = generalTextParts.join(' · ');
+    $('summaryResumen').textContent = state.resumen || 'Sin resumen ejecutivo.';
+
+    const tbody = $('summaryTableBody');
+    tbody.innerHTML = '';
+    if(state.acciones.length === 0){
+      tbody.innerHTML = '<tr><td colspan="5" class="muted">No hay acciones capturadas.</td></tr>';
+    } else {
+      state.acciones.forEach(accion => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(accion.titulo || '—')}</td>
+          <td>${escapeHtml(accion.meta || '—')}</td>
+          <td>${escapeHtml(accion.logro || '—')}</td>
+          <td>${escapeHtml(accion.beneficiarios || '—')}</td>
+          <td>${formatCurrencyFlexible(accion.inversion)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    const accordion = $('summaryAccordion');
+    accordion.innerHTML = '';
+    if(state.acciones.length === 0){
+      accordion.innerHTML = '<div class="empty">Aún no hay desarrollo de acciones para integrar.</div>';
+    } else {
+      state.acciones.forEach((accion, idx) => {
+        const d = document.createElement('details');
+        d.open = idx === 0;
+        d.innerHTML = `
+          <summary>
+            <span>${idx + 1}. ${escapeHtml(accion.titulo || 'Acción sin nombre')}</span>
+            <span class="chip chip-neutral">${escapeHtml(accion.logro || 'Sin logro')}</span>
+          </summary>
+          <div class="details-body">
+            <p><strong>¿Qué se hizo?</strong><br>${escapeHtml(accion.descripcion || 'Sin descripción')}</p>
+            <p><strong>¿Dónde se hizo?</strong><br>${escapeHtml(accion.donde || 'Sin ubicación')}</p>
+            <p><strong>¿Por qué es importante?</strong><br>${escapeHtml(accion.importancia || 'Sin justificación')}</p>
+          </div>
+        `;
+        accordion.appendChild(d);
+      });
+    }
+
+    $('summaryTestimonial').textContent = state.testimonial.nombre || state.testimonial.texto
+      ? `${state.testimonial.nombre || 'Beneficiario sin nombre'}${state.testimonial.texto ? ' — ' + state.testimonial.texto : ''}`
+      : 'Sin testimonial registrado.';
+    const evidenceText = [
+      state.evidencia.fotos ? `${state.evidencia.fotos} fotos` : '',
+      state.evidencia.videos ? `${state.evidencia.videos} videos` : '',
+      state.evidencia.carpeta ? `Referencia: ${state.evidencia.carpeta}` : '',
+      state.evidencia.notas ? state.evidencia.notas : ''
+    ].filter(Boolean).join(' · ');
+    $('summaryEvidence').textContent = evidenceText || 'Sin evidencia registrada.';
+
+    const totalBeneficiarios = state.acciones.reduce((sum, item) => sum + parseIntSafe(item.beneficiarios), 0);
+    const totalInversion = state.acciones.reduce((sum, item) => sum + parseCurrency(item.inversion), 0);
+    $('sumActions').textContent = state.acciones.length;
+    $('sumBeneficiarios').textContent = totalBeneficiarios.toLocaleString('es-MX');
+    $('sumInversion').textContent = totalInversion > 0 ? moneyFormat.format(totalInversion) : '—';
+    $('sumComments').textContent = state.comentarios.filter(c => c.status === 'abierto').length;
+  }
+
+  function renderSummaryComments(){
+    const list = $('summaryCommentsList');
+    list.innerHTML = '';
+    const ordered = state.comentarios.slice().reverse();
+    $('summaryCommentChip').textContent = ordered.length ? `${ordered.length} registradas` : 'Sin observaciones';
+    if(ordered.length === 0){
+      list.innerHTML = '<div class="empty">No hay comentarios de revisión.</div>';
+      return;
+    }
+    ordered.forEach(comment => {
+      const statusMap = {
+        abierto: ['Abierto', 'chip-danger'],
+        atendido: ['Atendido', 'chip-warning'],
+        retirado: ['Retirado', 'chip-success']
+      };
+      const [label, cls] = statusMap[comment.status] || ['Abierto', 'chip-danger'];
+      const item = document.createElement('div');
+      item.className = 'preview-box';
+      item.innerHTML = `
+        <h4>${escapeHtml(comment.section)} <span class="chip ${cls}" style="margin-left:8px;">${label}</span></h4>
+        <p><strong>Comentario:</strong> ${escapeHtml(comment.text)}</p>
+        <p style="margin-top:10px;"><strong>Respuesta:</strong> ${escapeHtml(comment.response || 'Sin respuesta')}</p>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function renderMetrics(){
+    $('metricActions').textContent = state.acciones.length;
+    $('metricComments').textContent = state.comentarios.filter(c => c.status === 'abierto').length;
+    $('metricResolved').textContent = `${currentCompletion()}%`;
+    $('metricStatus').textContent = integrationStatus().sideLabel;
+  }
+
+  function renderAll(keepEditors=true){
+    if(keepEditors){
+      renderActionsEditor();
+    }
+    updateWordCounter();
+    renderReviewPreview();
+    renderComments();
+    renderSummary();
+    renderSummaryComments();
+    renderMetrics();
+  }
+
+  function addAction(){
+    state.acciones.push({
+      id: crypto.randomUUID(),
+      titulo: '',
+      meta: '',
+      logro: '',
+      beneficiarios: '',
+      inversion: '',
+      descripcion: '',
+      donde: '',
+      importancia: ''
+    });
+    saveToStorage();
+  }
+
+  function addComment(){
+    const section = $('commentSection').value.trim();
+    const author = $('commentAuthor').value.trim();
+    const text = $('commentText').value.trim();
+    if(!text){
+      alert('Escribe un comentario antes de guardarlo.');
+      return;
+    }
+    state.comentarios.push({
+      id: crypto.randomUUID(),
+      section,
+      author,
+      text,
+      response: '',
+      status: 'abierto',
+      createdAt: new Date().toISOString()
+    });
+    $('commentText').value = '';
+    saveToStorage();
+  }
+
+  function syncStateFromStaticInputs(){
+    state.general.secretaria = $('secretaria').value;
+    state.general.area = $('area').value;
+    state.general.responsable = $('responsable').value;
+    state.general.cargo = $('cargo').value;
+    state.general.periodo = $('periodo').value;
+    state.general.fechaActualizacion = $('fechaActualizacion').value;
+    state.resumen = $('resumen').value;
+    state.testimonial.nombre = $('testimonioNombre').value;
+    state.testimonial.texto = $('testimonioTexto').value;
+    state.evidencia.fotos = $('evidenciaFotos').value;
+    state.evidencia.videos = $('evidenciaVideos').value;
+    state.evidencia.carpeta = $('evidenciaCarpeta').value;
+    state.evidencia.notas = $('evidenciaNotas').value;
+    renderAll(false);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function exportJSON(){
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'informe_2026_captura_demo.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function showPage(page){
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn[data-page]').forEach(el => el.classList.remove('active'));
+    const targetPage = document.getElementById(`page-${page}`);
+    if(targetPage) targetPage.classList.add('active');
+    const activeNav = document.querySelector(`.nav-btn[data-page="${page}"]`);
+    if(activeNav) activeNav.classList.add('active');
+  }
+
+  function formatCurrencyFlexible(value){
+    const num = parseCurrency(value);
+    return num > 0 ? moneyFormat.format(num) : (value ? escapeHtml(String(value)) : '—');
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function formatDate(iso){
+    if(!iso) return 'Sin fecha';
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'numeric' });
+  }
+
+  function bindStaticInputs(){
+    [
+      'secretaria','area','responsable','cargo','periodo','fechaActualizacion',
+      'resumen','testimonioNombre','testimonioTexto','evidenciaFotos','evidenciaVideos','evidenciaCarpeta','evidenciaNotas'
+    ].forEach(id => {
+      $(id).addEventListener('input', syncStateFromStaticInputs);
+      $(id).addEventListener('change', syncStateFromStaticInputs);
+    });
+
+    document.querySelectorAll('[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => showPage(btn.getAttribute('data-page')));
+    });
+
+    document.querySelectorAll('[data-page-target]').forEach(btn => {
+      btn.addEventListener('click', () => showPage(btn.getAttribute('data-page-target')));
+    });
+
+    $('addActionBtn').addEventListener('click', addAction);
+    $('addCommentBtn').addEventListener('click', addComment);
+    $('saveBtn').addEventListener('click', saveToStorage);
+    $('captureSaveTop').addEventListener('click', saveToStorage);
+    $('exportBtn').addEventListener('click', exportJSON);
+    $('downloadSummaryBtn').addEventListener('click', exportJSON);
+    $('loadDemoBtn').addEventListener('click', loadDemo);
+    $('resetBtn').addEventListener('click', () => {
+      if(confirm('¿Deseas limpiar toda la captura de este prototipo?')){
+        resetState();
+      }
+    });
+  }
+
+  loadFromStorage();
+  bindStaticInputs();
+  syncInputs();
+  renderAll();
+})();
+</script>
+</body>
+</html>
