@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prototipo de Captura - Informe 2026</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef3fb;
+      --line: #dbe3f1;
+      --text: #162033;
+      --muted: #64708a;
+      --primary: #153e75;
+      --primary-2: #1f5aa9;
+      --accent: #1ea7a1;
+      --warning: #d97706;
+      --danger: #b42318;
+      --success: #15803d;
+      --shadow: 0 12px 28px rgba(20, 42, 82, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(31, 90, 169, 0.08), transparent 28%),
+        linear-gradient(180deg, #f7f9fc 0%, #eff4fb 100%);
+      color: var(--text);
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 20px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(219, 227, 241, 0.9);
+    }
+
+    .brand {
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #153e75 0%, #204d8f 60%, #1ea7a1 100%);
+      color: #fff;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .brand small {
+      display: block;
+      opacity: .85;
+      letter-spacing: .04em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .brand h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.15;
+    }
+
+    .brand p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255,255,255,.9);
+    }
+
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .mini-kpi {
+      padding: 12px;
+      background: var(--surface-2);
+      border-radius: 14px;
+      border: 1px solid rgba(31,90,169,.08);
+    }
+
+    .mini-kpi strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 2px;
+      color: var(--primary);
+    }
+
+    .mini-kpi span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: .18s ease;
+      background: transparent;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      background: rgba(31, 90, 169, 0.08);
+      color: var(--primary);
+      border-color: rgba(31, 90, 169, 0.12);
+    }
+
+    .content {
+      padding: 28px;
+    }
+
+    .hero {
+      padding: 24px 26px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, rgba(21, 62, 117, 0.98), rgba(31, 90, 169, 0.95));
+      color: #fff;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,.88);
+      line-height: 1.6;
+      max-width: 900px;
+    }
+
+    .hero-panel {
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .01em;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #fff;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    button, .button-link {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      border-radius: 14px;
+      padding: 12px 16px;
+      transition: .18s ease;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(21, 62, 117, 0.18);
+    }
+
+    .btn-primary:hover { background: #123561; }
+    .btn-secondary {
+      background: #eaf1fb;
+      color: var(--primary);
+      border: 1px solid #d4e1f6;
+    }
+
+    .btn-secondary:hover { background: #dfeafb; }
+
+    .btn-ghost {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-warning {
+      background: #fff4e5;
+      color: #9a5b07;
+      border: 1px solid #f3d7a7;
+    }
+
+    .layout-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      scroll-margin-top: 28px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      color: var(--primary);
+    }
+
+    .card-subtitle {
+      margin: 8px 0 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 880px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .chip.draft { background: #eef3fb; color: var(--primary); }
+    .chip.review { background: #fff4e5; color: #9a5b07; }
+    .chip.comment { background: #fef1f2; color: var(--danger); }
+    .chip.ok { background: #edfdf3; color: var(--success); }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #21314f;
+    }
+
+    .field small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cfdaeb;
+      background: #fff;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit;
+      outline: none;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(31,90,169,.55);
+      box-shadow: 0 0 0 4px rgba(31,90,169,.12);
+    }
+
+    textarea { min-height: 126px; resize: vertical; }
+    .textarea-lg { min-height: 170px; }
+    .textarea-sm { min-height: 96px; }
+
+    .wordbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .word-pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      background: #edf4ff;
+      color: var(--primary);
+    }
+
+    .word-pill.alert {
+      background: #fff1f2;
+      color: var(--danger);
+    }
+
+    .section-note {
+      background: linear-gradient(180deg, #f6f9ff 0%, #f2f8ff 100%);
+      border: 1px solid #dce9fb;
+      border-radius: 18px;
+      padding: 16px 18px;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    .section-note strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+
+    .numeralia-wrapper {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e7edf7;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+      background: #f4f8ff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td input, td select {
+      min-width: 130px;
+      padding: 11px 12px;
+      border-radius: 12px;
+    }
+
+    td .cell-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 12px;
+      border: 1px solid #d7e3f7;
+      background: #fff;
+      font-size: 18px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .accordion-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .accordion-item {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .accordion-head {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .accordion-head strong {
+      display: block;
+      font-size: 17px;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .accordion-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .accordion-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid #e9eef8;
+      background: #fff;
+    }
+
+    .accordion-item.open .accordion-body { display: block; }
+
+    .comment-board {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+    }
+
+    .comment-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .comment-item {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 15px;
+    }
+
+    .comment-item header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .comment-item h4 {
+      margin: 0;
+      font-size: 14px;
+      color: var(--primary);
+    }
+
+    .comment-item p {
+      margin: 0;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .comment-item footer {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .dropzone {
+      border: 1.5px dashed #b7c7e4;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fbfdff 0%, #f5f9ff 100%);
+      padding: 18px;
+      min-height: 170px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .dropzone strong {
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .dropzone p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .file-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      max-width: 100%;
+      background: #eef5ff;
+      color: var(--primary);
+      border: 1px solid #d7e6ff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .timeline-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 3px;
+      box-shadow: 0 0 0 4px rgba(30,167,161,.12);
+    }
+
+    .timeline-content {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .timeline-content strong {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .preview {
+      display: grid;
+      gap: 18px;
+    }
+
+    .preview-block {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+      padding: 18px;
+    }
+
+    .preview-block h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: var(--primary);
+    }
+
+    .preview-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .preview-item {
+      border: 1px solid #e6edf8;
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .preview-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #173f75;
+    }
+
+    .preview-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      font-size: 12px;
+      color: var(--primary);
+      background: #edf4ff;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #dbe8ff;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .hero,
+      .comment-board,
+      .upload-grid,
+      .grid-4,
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .content { padding: 18px; }
+      .hero,
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .comment-board,
+      .upload-grid { grid-template-columns: 1fr; }
+      .card { padding: 18px; }
+      .hero h2 { font-size: 28px; }
+      .card-title { font-size: 22px; }
+      .card-header { flex-direction: column; }
+      .toolbar { flex-direction: column; }
+      .toolbar button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <small>Prototipo funcional</small>
+        <h1>Captura e integración del Informe 2026</h1>
+        <p>Vista demostrativa para que cada Secretaría cargue su información, atienda observaciones y deje listo su contenido para integración final.</p>
+      </div>
+
+      <div class="status-card">
+        <strong>Avance de captura</strong>
+        <div class="status-grid">
+          <div class="mini-kpi">
+            <strong id="kpiActions">1</strong>
+            <span>Acciones registradas</span>
+          </div>
+          <div class="mini-kpi">
+            <strong id="kpiComments">2</strong>
+            <span>Comentarios activos</span>
+          </div>
+          <div class="mini-kpi">
+            <strong id="kpiEvidence">3</strong>
+            <span>Archivos cargados</span>
+          </div>
+          <div class="mini-kpi">
+            <strong id="kpiProgress">58%</strong>
+            <span>Completitud estimada</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav" id="sideNav">
+        <a href="#datos-generales" class="active">1. Datos generales</a>
+        <a href="#resumen">2. Resumen ejecutivo</a>
+        <a href="#numeralia">3. Numeralia</a>
+        <a href="#desarrollo">4. Desarrollo de acciones</a>
+        <a href="#evidencia">5. Testimoniales y evidencia</a>
+        <a href="#comentarios">6. Comentarios y revisión</a>
+        <a href="#integracion">7. Integración del informe</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section class="hero">
+        <div>
+          <h2>Sistema de captura por área para el Segundo Informe de Gobierno</h2>
+          <p>
+            Este ejemplo traduce el instrumento de recolección a un flujo digital: cada dependencia captura su resumen,
+            registra numeralia, desarrolla cada acción, adjunta evidencia, recibe comentarios de revisión y deja lista
+            la información para su integración al informe anual.
+          </p>
+          <div class="hero-badges">
+            <span class="badge">Carga modular</span>
+            <span class="badge">Correcciones en línea</span>
+            <span class="badge">Seguimiento por estatus</span>
+            <span class="badge">Salida para integración</span>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <div>
+            <strong>Flujo sugerido</strong>
+            <p style="margin:8px 0 0; color:rgba(255,255,255,.88); line-height:1.6; font-size:14px;">
+              Captura inicial → envío a revisión → observaciones → ajustes por Secretaría → validación → integración al informe 2026.
+            </p>
+          </div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Secretaría</strong>
+                Carga información y evidencia por programa o acción.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Coordinación</strong>
+                Revisa cifras, redacción y consistencia del contenido.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <strong>Integración</strong>
+                Consolida el contenido ya validado en la versión final del informe.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <button class="btn-primary" id="saveDraftBtn">Guardar borrador</button>
+        <button class="btn-secondary" id="reviewBtn">Enviar a revisión</button>
+        <button class="btn-warning" id="commentBtn">Marcar con comentarios</button>
+        <button class="btn-ghost" id="approveBtn">Validar para integración</button>
+        <button class="btn-ghost" id="exportBtn">Exportar JSON de prueba</button>
+        <button class="btn-ghost" id="resetBtn">Restablecer demo</button>
+      </div>
+
+      <div class="layout-grid">
+        <section class="card" id="datos-generales">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">1. Datos generales del reporte</h3>
+              <p class="card-subtitle">Datos base para identificar a la dependencia, el responsable de la carga y el periodo del informe.</p>
+            </div>
+            <span class="chip draft" id="globalStatusChip">Borrador activo</span>
+          </div>
+
+          <div class="section-note">
+            <strong>Sugerencia funcional</strong>
+            Este bloque podría vincularse al catálogo de secretarías del sistema para evitar capturas duplicadas y mantener un control por área, usuario responsable y fecha de actualización.
+          </div>
+
+          <div class="grid-3">
+            <div class="field">
+              <label for="secretaria">Secretaría</label>
+              <select id="secretaria">
+                <option>Secretaría de Obras Públicas</option>
+                <option>Secretaría de Bienestar Social</option>
+                <option>Secretaría de Seguridad Pública</option>
+                <option>Secretaría de Desarrollo Económico</option>
+                <option>Otra área</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="periodo">Periodo de reporte</label>
+              <input id="periodo" value="Septiembre 2025 - Agosto 2026" />
+            </div>
+            <div class="field">
+              <label for="responsable">Responsable de captura</label>
+              <input id="responsable" value="Enlace de Planeación" />
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-top:16px;">
+            <div class="field">
+              <label for="cargo">Cargo</label>
+              <input id="cargo" value="Subdirección Operativa" />
+            </div>
+            <div class="field">
+              <label for="correo">Correo institucional</label>
+              <input id="correo" value="enlace@municipio.gob.mx" />
+            </div>
+            <div class="field">
+              <label for="fechaActualizacion">Última actualización</label>
+              <input id="fechaActualizacion" type="date" value="2026-04-13" />
+            </div>
+            <div class="field">
+              <label for="estadoExpediente">Estado del expediente</label>
+              <select id="estadoExpediente">
+                <option value="draft">En captura</option>
+                <option value="review">En revisión</option>
+                <option value="comment">Con comentarios</option>
+                <option value="ok">Validado</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="resumen">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">2. Resumen ejecutivo</h3>
+              <p class="card-subtitle">Máximo 150 palabras. Debe expresar el logro principal del área de manera clara y útil para el ciudadano.</p>
+            </div>
+            <span class="chip draft">Campo estratégico</span>
+          </div>
+
+          <div class="field">
+            <label for="resumenEjecutivo">Logro más importante del año</label>
+            <textarea id="resumenEjecutivo" class="textarea-lg">Durante el periodo informado, la Secretaría de Obras Públicas superó la meta anual de rehabilitación vial mediante intervenciones integrales en colonias prioritarias, mejorando la conectividad, la seguridad peatonal y la movilidad cotidiana de miles de habitantes. Además del incremento físico en superficie atendida, se priorizó la atención en zonas con mayor desgaste, reportes ciudadanos y tránsito local, lo que permitió dar una respuesta más eficiente y visible para la población. El resultado fue una mejora tangible en tiempos de traslado, imagen urbana y condiciones de acceso para los vecinos.</textarea>
+            <div class="wordbar">
+              <span>Recomendación: mantener un enfoque ciudadano, evitar tecnicismos innecesarios y resaltar el resultado alcanzado.</span>
+              <span class="word-pill" id="wordCounter">0 / 150 palabras</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="numeralia">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">3. Datos duros y numeralia</h3>
+              <p class="card-subtitle">Las acciones deben ordenarse de mayor a menor importancia. Cada fila genera su bloque de desarrollo para ampliar la explicación narrativa.</p>
+            </div>
+            <button class="btn-secondary" id="addRowBtn" type="button">Agregar acción</button>
+          </div>
+
+          <div class="section-note">
+            <strong>Mejora sugerida para el módulo real</strong>
+            Puede incluir catálogos de unidades de medida, validación de montos, beneficiarios directos e incluso conexión con metas del POA para evitar inconsistencias entre áreas.
+          </div>
+
+          <div class="numeralia-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="min-width: 260px;">Acción / Programa</th>
+                  <th style="min-width: 110px;">Unidad</th>
+                  <th style="min-width: 140px;">Meta anual</th>
+                  <th style="min-width: 140px;">Logro alcanzado</th>
+                  <th style="min-width: 170px;">Beneficiarios directos</th>
+                  <th style="min-width: 150px;">Inversión</th>
+                  <th style="min-width: 150px;">Prioridad</th>
+                  <th style="min-width: 150px;">Estatus</th>
+                  <th style="min-width: 90px;">Quitar</th>
+                </tr>
+              </thead>
+              <tbody id="actionsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card" id="desarrollo">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">4. Desarrollo de acciones</h3>
+              <p class="card-subtitle">Por cada acción capturada, se despliega un bloque para responder qué se hizo, dónde se hizo y por qué es importante.</p>
+            </div>
+            <span class="chip review">Se actualiza automáticamente</span>
+          </div>
+
+          <div id="actionDetailsContainer" class="accordion-list"></div>
+        </section>
+
+        <section class="card" id="evidencia">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">5. Testimoniales y evidencia</h3>
+              <p class="card-subtitle">Bloque para documentar caso de éxito, comentarios de beneficiarios y archivos audiovisuales que respaldan el informe.</p>
+            </div>
+            <span class="chip draft">Adjuntos de respaldo</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="casoNombre">Nombre del ciudadano beneficiado</label>
+              <input id="casoNombre" value="María Hernández López" />
+            </div>
+            <div class="field">
+              <label for="casoLocalidad">Colonia / comunidad</label>
+              <input id="casoLocalidad" value="La Providencia" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:16px;">
+            <label for="casoComentario">Breve testimonial</label>
+            <textarea id="casoComentario" class="textarea-sm">La rehabilitación mejoró el acceso a mi calle y ahora el traslado diario es más seguro para mi familia.</textarea>
+          </div>
+
+          <div class="upload-grid" style="margin-top:18px;">
+            <div class="dropzone">
+              <strong>Fotografías y comparativos</strong>
+              <p>Simulación de carga de imágenes antes/después. En el sistema real, aquí se podrían almacenar carpetas o archivos vinculados a cada acción.</p>
+              <input type="file" id="photoUpload" multiple accept="image/*" />
+              <div class="file-list" id="photoList"></div>
+            </div>
+            <div class="dropzone">
+              <strong>Videos o materiales complementarios</strong>
+              <p>Espacio para clips cortos, documentos técnicos, fichas de obra, minutas o cualquier soporte adicional.</p>
+              <input type="file" id="videoUpload" multiple accept="video/*,.pdf,.doc,.docx,.xlsx" />
+              <div class="file-list" id="videoList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="comentarios">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">6. Comentarios y ciclo de revisión</h3>
+              <p class="card-subtitle">Vista para que Coordinación o Contraloría interna deje observaciones, y el área atienda ajustes sin salir del módulo.</p>
+            </div>
+            <span class="chip comment" id="commentStatusChip">2 comentarios activos</span>
+          </div>
+
+          <div class="comment-board">
+            <div>
+              <div class="comment-list" id="commentList"></div>
+            </div>
+            <div>
+              <div class="section-note" style="margin-bottom:16px;">
+                <strong>Uso sugerido</strong>
+                Cada comentario puede asociarse a un apartado, incluir responsable, fecha compromiso y estatus de atención para dejar trazabilidad de los cambios realizados.
+              </div>
+
+              <div class="field">
+                <label for="commentSection">Apartado</label>
+                <select id="commentSection">
+                  <option value="Datos generales">Datos generales</option>
+                  <option value="Resumen ejecutivo">Resumen ejecutivo</option>
+                  <option value="Numeralia">Numeralia</option>
+                  <option value="Desarrollo de acciones">Desarrollo de acciones</option>
+                  <option value="Testimoniales y evidencia">Testimoniales y evidencia</option>
+                </select>
+              </div>
+
+              <div class="field" style="margin-top:14px;">
+                <label for="commentAuthor">Revisor</label>
+                <input id="commentAuthor" value="Coordinación de Informe" />
+              </div>
+
+              <div class="field" style="margin-top:14px;">
+                <label for="commentText">Comentario</label>
+                <textarea id="commentText" class="textarea-sm" placeholder="Escriba una observación concreta para que el área la atienda."></textarea>
+              </div>
+
+              <div class="field" style="margin-top:14px;">
+                <label for="commentDue">Fecha compromiso</label>
+                <input type="date" id="commentDue" value="2026-04-20" />
+              </div>
+
+              <button class="btn-primary" style="margin-top:16px; width:100%;" id="addCommentBtn">Agregar comentario</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="integracion">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">7. Vista de integración del informe</h3>
+              <p class="card-subtitle">Esta sección resume lo capturado y muestra cómo podría quedar listo para consolidarse en el Informe 2026.</p>
+            </div>
+            <span class="chip ok" id="integrationChip">Listo para consolidar</span>
+          </div>
+
+          <div class="preview" id="integrationPreview"></div>
+          <p class="footer-note">
+            Este archivo funciona como prototipo front-end. Para operación real, convendría conectarlo a autenticación por usuario,
+            catálogos institucionales, almacenamiento de evidencias, bitácora de cambios y un exportador que arme automáticamente los insumos del informe.
+          </p>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const defaultState = {
+      actions: [
+        {
+          id: cryptoRandomId(),
+          name: 'Rehabilitación vial en La Providencia',
+          unit: 'm²',
+          target: '5000',
+          achieved: '5200',
+          beneficiaries: '12000',
+          investment: '1500000',
+          priority: 'Alta',
+          status: 'En revisión',
+          what: 'Se realizó fresado, nivelación, bacheo profundo y reposición de carpeta asfáltica en tramos prioritarios de la colonia, complementando trabajos de señalética horizontal.',
+          where: 'La Providencia, accesos principales y vialidades secundarias con mayor tránsito vecinal.',
+          why: 'La intervención resolvió deterioro acumulado, mejoró el tránsito diario y redujo riesgos para peatones y automovilistas.'
+        }
+      ],
+      comments: [
+        {
+          id: cryptoRandomId(),
+          section: 'Resumen ejecutivo',
+          author: 'Coordinación de Informe',
+          text: 'Conviene reforzar el impacto ciudadano con una cifra concreta de beneficiarios o cobertura territorial.',
+          due: '2026-04-18',
+          status: 'Pendiente'
+        },
+        {
+          id: cryptoRandomId(),
+          section: 'Numeralia',
+          author: 'Dirección de Planeación',
+          text: 'Revisar que la inversión coincida con el cierre presupuestal reportado por Finanzas.',
+          due: '2026-04-21',
+          status: 'Pendiente'
+        }
+      ]
+    };
+
+    const tableBody = document.getElementById('actionsTableBody');
+    const actionDetailsContainer = document.getElementById('actionDetailsContainer');
+    const integrationPreview = document.getElementById('integrationPreview');
+    const wordCounter = document.getElementById('wordCounter');
+    const resumenEjecutivo = document.getElementById('resumenEjecutivo');
+    const commentList = document.getElementById('commentList');
+    const kpiActions = document.getElementById('kpiActions');
+    const kpiComments = document.getElementById('kpiComments');
+    const kpiEvidence = document.getElementById('kpiEvidence');
+    const kpiProgress = document.getElementById('kpiProgress');
+    const commentStatusChip = document.getElementById('commentStatusChip');
+    const globalStatusChip = document.getElementById('globalStatusChip');
+    const integrationChip = document.getElementById('integrationChip');
+
+    let state = loadState();
+    let evidenceState = { photos: [], videos: [] };
+
+    renderAll();
+    bindEvents();
+
+    function bindEvents() {
+      document.getElementById('addRowBtn').addEventListener('click', addActionRow);
+      document.getElementById('addCommentBtn').addEventListener('click', addComment);
+      document.getElementById('saveDraftBtn').addEventListener('click', () => setWorkflowStatus('draft', 'Borrador guardado'));
+      document.getElementById('reviewBtn').addEventListener('click', () => setWorkflowStatus('review', 'Expediente enviado a revisión'));
+      document.getElementById('commentBtn').addEventListener('click', () => setWorkflowStatus('comment', 'Expediente marcado con comentarios'));
+      document.getElementById('approveBtn').addEventListener('click', () => setWorkflowStatus('ok', 'Expediente validado para integración'));
+      document.getElementById('exportBtn').addEventListener('click', exportJSON);
+      document.getElementById('resetBtn').addEventListener('click', resetDemo);
+      document.getElementById('photoUpload').addEventListener('change', (event) => handleFiles(event, 'photos'));
+      document.getElementById('videoUpload').addEventListener('change', (event) => handleFiles(event, 'videos'));
+      resumenEjecutivo.addEventListener('input', updateWordCount);
+      document.getElementById('estadoExpediente').addEventListener('change', syncStatusFromSelect);
+
+      ['secretaria','periodo','responsable','cargo','correo','fechaActualizacion','estadoExpediente','casoNombre','casoLocalidad','casoComentario']
+        .forEach(id => document.getElementById(id).addEventListener('input', persistAndRefresh));
+
+      document.querySelectorAll('#sideNav a').forEach(link => {
+        link.addEventListener('click', () => {
+          document.querySelectorAll('#sideNav a').forEach(a => a.classList.remove('active'));
+          link.classList.add('active');
+        });
+      });
+
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const id = visible.target.id;
+        document.querySelectorAll('#sideNav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
+      }, { threshold: [0.25, 0.5, 0.75] });
+
+      document.querySelectorAll('.card').forEach(card => observer.observe(card));
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('informe2026DemoState');
+        return saved ? JSON.parse(saved) : structuredClone(defaultState);
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    function persistAndRefresh() {
+      saveState();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function saveState() {
+      localStorage.setItem('informe2026DemoState', JSON.stringify(state));
+    }
+
+    function resetDemo() {
+      if (!confirm('Esto restablecerá la demo al estado inicial.')) return;
+      state = structuredClone(defaultState);
+      evidenceState = { photos: [], videos: [] };
+      localStorage.removeItem('informe2026DemoState');
+      document.getElementById('secretaria').value = 'Secretaría de Obras Públicas';
+      document.getElementById('periodo').value = 'Septiembre 2025 - Agosto 2026';
+      document.getElementById('responsable').value = 'Enlace de Planeación';
+      document.getElementById('cargo').value = 'Subdirección Operativa';
+      document.getElementById('correo').value = 'enlace@municipio.gob.mx';
+      document.getElementById('fechaActualizacion').value = '2026-04-13';
+      document.getElementById('estadoExpediente').value = 'draft';
+      document.getElementById('casoNombre').value = 'María Hernández López';
+      document.getElementById('casoLocalidad').value = 'La Providencia';
+      document.getElementById('casoComentario').value = 'La rehabilitación mejoró el acceso a mi calle y ahora el traslado diario es más seguro para mi familia.';
+      resumenEjecutivo.value = 'Durante el periodo informado, la Secretaría de Obras Públicas superó la meta anual de rehabilitación vial mediante intervenciones integrales en colonias prioritarias, mejorando la conectividad, la seguridad peatonal y la movilidad cotidiana de miles de habitantes. Además del incremento físico en superficie atendida, se priorizó la atención en zonas con mayor desgaste, reportes ciudadanos y tránsito local, lo que permitió dar una respuesta más eficiente y visible para la población. El resultado fue una mejora tangible en tiempos de traslado, imagen urbana y condiciones de acceso para los vecinos.';
+      document.getElementById('photoUpload').value = '';
+      document.getElementById('videoUpload').value = '';
+      renderAll();
+      alert('La demo se restableció correctamente.');
+    }
+
+    function renderAll() {
+      renderActionsTable();
+      renderActionDetails();
+      renderComments();
+      renderIntegrationPreview();
+      updateWordCount();
+      renderFileLists();
+      syncStatusVisuals(document.getElementById('estadoExpediente').value || 'draft');
+      updateKPIs();
+    }
+
+    function renderActionsTable() {
+      tableBody.innerHTML = '';
+      state.actions.forEach(action => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input data-id="${action.id}" data-field="name" value="${escapeHtmlAttr(action.name)}" placeholder="Nombre de la acción" /></td>
+          <td><input data-id="${action.id}" data-field="unit" value="${escapeHtmlAttr(action.unit)}" placeholder="Unidad" /></td>
+          <td><input data-id="${action.id}" data-field="target" value="${escapeHtmlAttr(action.target)}" placeholder="Meta" /></td>
+          <td><input data-id="${action.id}" data-field="achieved" value="${escapeHtmlAttr(action.achieved)}" placeholder="Logro" /></td>
+          <td><input data-id="${action.id}" data-field="beneficiaries" value="${escapeHtmlAttr(action.beneficiaries)}" placeholder="Beneficiarios" /></td>
+          <td><input data-id="${action.id}" data-field="investment" value="${escapeHtmlAttr(action.investment)}" placeholder="Monto" /></td>
+          <td>
+            <select data-id="${action.id}" data-field="priority">
+              ${['Alta','Media','Baja'].map(option => `<option ${action.priority === option ? 'selected' : ''}>${option}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select data-id="${action.id}" data-field="status">
+              ${['En captura','En revisión','Ajuste solicitado','Validada'].map(option => `<option ${action.status === option ? 'selected' : ''}>${option}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <div class="cell-actions">
+              <button class="icon-btn" type="button" title="Eliminar" data-remove="${action.id}">×</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      tableBody.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', onActionFieldChange);
+        input.addEventListener('change', onActionFieldChange);
+      });
+      tableBody.querySelectorAll('[data-remove]').forEach(button => button.addEventListener('click', removeAction));
+    }
+
+    function renderActionDetails() {
+      actionDetailsContainer.innerHTML = '';
+      if (!state.actions.length) {
+        actionDetailsContainer.innerHTML = '<div class="section-note"><strong>Aún no hay acciones</strong>Agregue una acción en la tabla de numeralia para habilitar su desarrollo narrativo.</div>';
+        return;
+      }
+
+      state.actions.forEach((action, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `accordion-item ${index === 0 ? 'open' : ''}`;
+        wrapper.innerHTML = `
+          <button type="button" class="accordion-head">
+            <div>
+              <strong>${escapeHtml(action.name || `Acción ${index + 1}`)}</strong>
+              <div class="accordion-meta">Meta: ${escapeHtml(action.target || '—')} ${escapeHtml(action.unit || '')} · Logro: ${escapeHtml(action.achieved || '—')} ${escapeHtml(action.unit || '')} · Estatus: ${escapeHtml(action.status || 'En captura')}</div>
+            </div>
+            <span class="chip ${getActionStatusClass(action.status)}">${escapeHtml(action.status || 'En captura')}</span>
+          </button>
+          <div class="accordion-body">
+            <div class="grid-3" style="margin-top:16px;">
+              <div class="field">
+                <label>¿Qué se hizo?</label>
+                <textarea class="detail-input" data-id="${action.id}" data-field="what" placeholder="Descripción técnica clara.">${escapeHtml(action.what || '')}</textarea>
+              </div>
+              <div class="field">
+                <label>¿Dónde se hizo?</label>
+                <textarea class="detail-input" data-id="${action.id}" data-field="where" placeholder="Colonias, fraccionamientos o comunidades.">${escapeHtml(action.where || '')}</textarea>
+              </div>
+              <div class="field">
+                <label>¿Por qué es importante?</label>
+                <textarea class="detail-input" data-id="${action.id}" data-field="why" placeholder="Problema social o de infraestructura que resolvió.">${escapeHtml(action.why || '')}</textarea>
+              </div>
+            </div>
+          </div>
+        `;
+        actionDetailsContainer.appendChild(wrapper);
+      });
+
+      actionDetailsContainer.querySelectorAll('.accordion-head').forEach(head => {
+        head.addEventListener('click', () => head.parentElement.classList.toggle('open'));
+      });
+      actionDetailsContainer.querySelectorAll('.detail-input').forEach(input => {
+        input.addEventListener('input', onActionFieldChange);
+      });
+    }
+
+    function renderComments() {
+      commentList.innerHTML = '';
+      if (!state.comments.length) {
+        commentList.innerHTML = '<div class="section-note"><strong>Sin comentarios</strong>No hay observaciones registradas en este momento.</div>';
+        return;
+      }
+
+      state.comments.forEach(comment => {
+        const item = document.createElement('article');
+        item.className = 'comment-item';
+        item.innerHTML = `
+          <header>
+            <h4>${escapeHtml(comment.section)}</h4>
+            <span class="chip ${comment.status === 'Atendido' ? 'ok' : 'comment'}">${escapeHtml(comment.status)}</span>
+          </header>
+          <p>${escapeHtml(comment.text)}</p>
+          <footer>
+            <span>Revisor: ${escapeHtml(comment.author)}</span>
+            <span>Compromiso: ${escapeHtml(comment.due)}</span>
+          </footer>
+          <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+            <button class="btn-secondary" type="button" data-toggle-comment="${comment.id}">${comment.status === 'Atendido' ? 'Marcar pendiente' : 'Marcar atendido'}</button>
+            <button class="btn-ghost" type="button" data-delete-comment="${comment.id}">Eliminar</button>
+          </div>
+        `;
+        commentList.appendChild(item);
+      });
+
+      commentList.querySelectorAll('[data-toggle-comment]').forEach(button => {
+        button.addEventListener('click', () => toggleComment(button.dataset.toggleComment));
+      });
+      commentList.querySelectorAll('[data-delete-comment]').forEach(button => {
+        button.addEventListener('click', () => deleteComment(button.dataset.deleteComment));
+      });
+    }
+
+    function renderIntegrationPreview() {
+      const secretaria = document.getElementById('secretaria').value;
+      const periodo = document.getElementById('periodo').value;
+      const responsable = document.getElementById('responsable').value;
+      const estado = document.getElementById('estadoExpediente').value;
+      const casoNombre = document.getElementById('casoNombre').value;
+      const casoLocalidad = document.getElementById('casoLocalidad').value;
+      const casoComentario = document.getElementById('casoComentario').value;
+      const summary = resumenEjecutivo.value.trim();
+
+      const actionsHtml = state.actions.map(action => `
+        <div class="preview-item">
+          <strong>${escapeHtml(action.name || 'Acción sin nombre')}</strong>
+          <div>${escapeHtml(action.what || 'Sin descripción técnica.')}</div>
+          <div style="margin-top:8px; color:var(--muted);">${escapeHtml(action.where || 'Ubicación pendiente')} · ${escapeHtml(action.why || 'Justificación pendiente')}</div>
+          <div class="preview-meta">
+            <span class="metric">Meta: ${escapeHtml(action.target || '—')} ${escapeHtml(action.unit || '')}</span>
+            <span class="metric">Logro: ${escapeHtml(action.achieved || '—')} ${escapeHtml(action.unit || '')}</span>
+            <span class="metric">Beneficiarios: ${escapeHtml(action.beneficiaries || '—')}</span>
+            <span class="metric">Inversión: $${formatMoney(action.investment)}</span>
+            <span class="metric">${escapeHtml(action.status || 'En captura')}</span>
+          </div>
+        </div>
+      `).join('');
+
+      integrationPreview.innerHTML = `
+        <div class="preview-block">
+          <h4>Ficha de integración</h4>
+          <div class="grid-4">
+            <div class="mini-kpi"><strong>${escapeHtml(secretaria)}</strong><span>Área responsable</span></div>
+            <div class="mini-kpi"><strong>${escapeHtml(periodo)}</strong><span>Periodo reportado</span></div>
+            <div class="mini-kpi"><strong>${escapeHtml(responsable)}</strong><span>Responsable</span></div>
+            <div class="mini-kpi"><strong>${mapWorkflowLabel(estado)}</strong><span>Estatus general</span></div>
+          </div>
+        </div>
+        <div class="preview-block">
+          <h4>Resumen ejecutivo listo para maquetación</h4>
+          <div style="line-height:1.7; color:var(--text);">${escapeHtml(summary || 'Sin resumen capturado.')}</div>
+        </div>
+        <div class="preview-block">
+          <h4>Acciones relevantes para integrar</h4>
+          <div class="preview-list">${actionsHtml || '<div class="preview-item">Sin acciones registradas.</div>'}</div>
+        </div>
+        <div class="preview-block">
+          <h4>Testimonial y evidencia</h4>
+          <div class="preview-item">
+            <strong>${escapeHtml(casoNombre || 'Testimonial pendiente')} · ${escapeHtml(casoLocalidad || 'Ubicación pendiente')}</strong>
+            <div>${escapeHtml(casoComentario || 'Sin comentario capturado.')}</div>
+            <div class="preview-meta">
+              <span class="metric">Fotos: ${evidenceState.photos.length}</span>
+              <span class="metric">Archivos complementarios: ${evidenceState.videos.length}</span>
+              <span class="metric">Comentarios activos: ${state.comments.filter(c => c.status !== 'Atendido').length}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateWordCount() {
+      const words = resumenEjecutivo.value.trim().split(/\s+/).filter(Boolean);
+      const count = words.length;
+      wordCounter.textContent = `${count} / 150 palabras`;
+      wordCounter.classList.toggle('alert', count > 150);
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function updateKPIs() {
+      const totalActions = state.actions.length;
+      const activeComments = state.comments.filter(comment => comment.status !== 'Atendido').length;
+      const evidenceCount = evidenceState.photos.length + evidenceState.videos.length;
+      const completion = calculateCompletion();
+
+      kpiActions.textContent = totalActions;
+      kpiComments.textContent = activeComments;
+      kpiEvidence.textContent = evidenceCount;
+      kpiProgress.textContent = `${completion}%`;
+      commentStatusChip.textContent = `${activeComments} comentario${activeComments === 1 ? '' : 's'} activo${activeComments === 1 ? '' : 's'}`;
+      integrationChip.textContent = completion >= 85 ? 'Listo para consolidar' : 'Pendiente de completar';
+    }
+
+    function calculateCompletion() {
+      const summaryReady = resumenEjecutivo.value.trim().split(/\s+/).filter(Boolean).length >= 40;
+      const actionsReady = state.actions.length && state.actions.every(action => action.name && action.target && action.achieved && action.what && action.where && action.why);
+      const testimonialReady = document.getElementById('casoNombre').value && document.getElementById('casoComentario').value;
+      const pendingComments = state.comments.filter(comment => comment.status !== 'Atendido').length;
+
+      let score = 20;
+      if (summaryReady) score += 20;
+      if (actionsReady) score += 30;
+      if (testimonialReady) score += 10;
+      if (evidenceState.photos.length || evidenceState.videos.length) score += 10;
+      if (pendingComments === 0) score += 10;
+      return Math.min(score, 100);
+    }
+
+    function addActionRow() {
+      state.actions.push({
+        id: cryptoRandomId(),
+        name: '',
+        unit: '',
+        target: '',
+        achieved: '',
+        beneficiaries: '',
+        investment: '',
+        priority: 'Media',
+        status: 'En captura',
+        what: '',
+        where: '',
+        why: ''
+      });
+      saveState();
+      renderActionsTable();
+      renderActionDetails();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function removeAction(event) {
+      const id = event.currentTarget.dataset.remove;
+      state.actions = state.actions.filter(action => action.id !== id);
+      saveState();
+      renderActionsTable();
+      renderActionDetails();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function onActionFieldChange(event) {
+      const { id, field } = event.target.dataset;
+      const action = state.actions.find(item => item.id === id);
+      if (!action) return;
+      action[field] = event.target.value;
+      saveState();
+      renderActionDetails();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function addComment() {
+      const section = document.getElementById('commentSection').value;
+      const author = document.getElementById('commentAuthor').value.trim();
+      const text = document.getElementById('commentText').value.trim();
+      const due = document.getElementById('commentDue').value;
+      if (!text) {
+        alert('Escriba el comentario antes de agregarlo.');
+        return;
+      }
+      state.comments.unshift({
+        id: cryptoRandomId(),
+        section,
+        author: author || 'Revisor',
+        text,
+        due,
+        status: 'Pendiente'
+      });
+      document.getElementById('commentText').value = '';
+      saveState();
+      renderComments();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function toggleComment(commentId) {
+      const comment = state.comments.find(item => item.id === commentId);
+      if (!comment) return;
+      comment.status = comment.status === 'Atendido' ? 'Pendiente' : 'Atendido';
+      saveState();
+      renderComments();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function deleteComment(commentId) {
+      state.comments = state.comments.filter(item => item.id !== commentId);
+      saveState();
+      renderComments();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function handleFiles(event, group) {
+      const files = Array.from(event.target.files || []);
+      evidenceState[group] = files.map(file => ({ name: file.name, size: file.size }));
+      renderFileLists();
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function renderFileLists() {
+      const photoList = document.getElementById('photoList');
+      const videoList = document.getElementById('videoList');
+      photoList.innerHTML = evidenceState.photos.length
+        ? evidenceState.photos.map(file => `<span class="file-pill">🖼️ ${escapeHtml(file.name)}</span>`).join('')
+        : '<span class="file-pill">Sin fotografías cargadas</span>';
+      videoList.innerHTML = evidenceState.videos.length
+        ? evidenceState.videos.map(file => `<span class="file-pill">📎 ${escapeHtml(file.name)}</span>`).join('')
+        : '<span class="file-pill">Sin archivos complementarios</span>';
+    }
+
+    function exportJSON() {
+      const payload = {
+        secretaria: document.getElementById('secretaria').value,
+        periodo: document.getElementById('periodo').value,
+        responsable: document.getElementById('responsable').value,
+        cargo: document.getElementById('cargo').value,
+        correo: document.getElementById('correo').value,
+        fechaActualizacion: document.getElementById('fechaActualizacion').value,
+        estadoExpediente: document.getElementById('estadoExpediente').value,
+        resumenEjecutivo: resumenEjecutivo.value,
+        acciones: state.actions,
+        testimonial: {
+          nombre: document.getElementById('casoNombre').value,
+          localidad: document.getElementById('casoLocalidad').value,
+          comentario: document.getElementById('casoComentario').value
+        },
+        comentarios: state.comments,
+        evidencias: evidenceState
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'prototipo_informe_2026.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function setWorkflowStatus(status, message) {
+      document.getElementById('estadoExpediente').value = status;
+      syncStatusVisuals(status);
+      renderIntegrationPreview();
+      updateKPIs();
+      alert(message);
+    }
+
+    function syncStatusFromSelect(event) {
+      syncStatusVisuals(event.target.value);
+      renderIntegrationPreview();
+      updateKPIs();
+    }
+
+    function syncStatusVisuals(status) {
+      globalStatusChip.className = `chip ${statusToChipClass(status)}`;
+      globalStatusChip.textContent = mapWorkflowLabel(status);
+    }
+
+    function mapWorkflowLabel(status) {
+      switch (status) {
+        case 'review': return 'En revisión';
+        case 'comment': return 'Con comentarios';
+        case 'ok': return 'Validado';
+        default: return 'Borrador activo';
+      }
+    }
+
+    function statusToChipClass(status) {
+      switch (status) {
+        case 'review': return 'review';
+        case 'comment': return 'comment';
+        case 'ok': return 'ok';
+        default: return 'draft';
+      }
+    }
+
+    function getActionStatusClass(status) {
+      switch (status) {
+        case 'Validada': return 'ok';
+        case 'Ajuste solicitado': return 'comment';
+        case 'En revisión': return 'review';
+        default: return 'draft';
+      }
+    }
+
+    function formatMoney(value) {
+      const numeric = Number(String(value).replace(/[^0-9.-]+/g, ''));
+      if (Number.isNaN(numeric) || !value) return '0';
+      return new Intl.NumberFormat('es-MX').format(numeric);
+    }
+
+    function cryptoRandomId() {
+      return 'id-' + Math.random().toString(36).slice(2, 10);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeHtmlAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#096;');
+    }
+  </script>
+</body>
+</html>
